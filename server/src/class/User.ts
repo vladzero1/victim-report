@@ -9,4 +9,7 @@ export class User {
   phoneNumber!: string;
 
   password!: string;
+  
+  @Field(()=>String)
+  type!: string;
 }

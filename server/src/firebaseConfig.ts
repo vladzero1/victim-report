@@ -9,5 +9,4 @@ export const firebaseCredentials = {
   tokenUri: "https://oauth2.googleapis.com/token",
   authProviderX509CertUrl: "https://www.googleapis.com/oauth2/v1/certs",
   clientX509CertUrl: process.env.FIREBASE_CLIENT_X509_CERT_URL,
-  getAccessToken: ""
 };
