@@ -1,33 +1,30 @@
 import { ApolloServer } from "apollo-server-express";
-import connectRedis from 'connect-redis';
-import cors from "cors";
+import connectRedis from "connect-redis";
 import express from "express";
-import session from 'express-session';
-import admin from 'firebase-admin';
-import Redis from 'ioredis';
-import 'reflect-metadata';
+import session from "express-session";
+import admin from "firebase-admin";
+import Redis from "ioredis";
+import "reflect-metadata";
 import { buildSchema } from "type-graphql";
-import { COOKIE_NAME, __prod__ } from './constant';
-import { UserResolver } from './resolvers/user';
-import { VictimResolver } from './resolvers/victim';
+import {
+  PHONE_NUMBER_COOKIE_NAME,
+  __prod__,
+} from "./constant";
+import { AdminResolver } from "./resolvers/admin";
+import { MeResolver } from "./resolvers/me";
+import { UserResolver } from "./resolvers/user";
+import { VictimResolver } from "./resolvers/victim";
 import { MyContext } from "./types";
 
-var  ServiceAccount= require('./service-account.json');
+var ServiceAccount = require("./service-account.json");
 
 const main = async () => {
   const app = express();
-  const RedisStore = connectRedis(session); 
+  const RedisStore = connectRedis(session);
   const redis = new Redis();
   app.use(
-    cors({
-      origin: "http://localhost:3000",
-      credentials: true,
-    })
-  );
-
-  app.use(
     session({
-      name: COOKIE_NAME,
+      name: PHONE_NUMBER_COOKIE_NAME,
       store: new RedisStore({
         client: redis,
         disableTouch: true,
@@ -41,7 +38,7 @@ const main = async () => {
       saveUninitialized: false,
       secret: "keyboard cat",
       resave: false,
-    })
+    }),
   );
   const firebaseClient = admin.initializeApp({
     credential: admin.credential.cert(ServiceAccount),
@@ -52,20 +49,23 @@ const main = async () => {
 
   const apolloServer = new ApolloServer({
     schema: await buildSchema({
-      resolvers: [UserResolver, VictimResolver],
+      resolvers: [UserResolver, VictimResolver, MeResolver, AdminResolver],
       validate: false,
     }),
     context: ({ req, res }): MyContext => ({
       req,
       res,
       redis,
-      firestore
+      firestore,
     }),
   });
 
   apolloServer.applyMiddleware({
     app,
-    cors: false,
+    cors: {
+      credentials: true,
+      origin: "http://localhost:3000",
+    },
   });
 
   app.listen(4000, () => {

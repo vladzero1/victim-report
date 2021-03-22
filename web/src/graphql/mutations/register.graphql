@@ -1,0 +1,33 @@
+mutation RegisterUser(
+  $username: String!
+  $region: String!
+  $options: PhoneNumberPasswordInput!
+) {
+  registerUser(username: $username, region: $region, options: $options) {
+    errors {
+      field
+      message
+    }
+    user {
+      username
+      phoneNumber
+      region
+    }
+  }
+}
+
+mutation RegisterAdmin(
+  $username: String!
+  $options: PhoneNumberPasswordInput!
+) {
+  registerAdmin(username: $username, options: $options) {
+    errors {
+      field
+      message
+    }
+    admin {
+      username
+      phoneNumber
+    }
+  }
+}

@@ -20,6 +20,9 @@ export class Victim {
   @Field(() => String)
   location!: string;
 
-  @Field(()=> String)
+  @Field(() => String)
   creatorPhoneNumber: string;
+
+  @Field(() => String)
+  region: string;
 }

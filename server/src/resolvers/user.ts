@@ -1,4 +1,4 @@
-import { User } from "../class/User";
+import { User } from "../entity/User";
 import {
   validatePasswordLength,
   validatePhoneNumber,
@@ -15,27 +15,17 @@ import {
 } from "type-graphql";
 import argon2 from "argon2";
 import { MyContext } from "../types";
-import { CollectionType } from "../utils/enums";
+import { CollectionType, UserType, FieldName } from "../utils/enums";
+import { FieldError } from "../utils/FieldError";
+import { PHONE_NUMBER_COOKIE_NAME } from "../constant";
 
 @InputType()
-class PhoneNumberPasswordInput {
+export class PhoneNumberPasswordInput {
   @Field()
   phoneNumber: string;
 
   @Field()
   password: string;
-
-  @Field()
-  type: string;
-}
-
-@ObjectType()
-class FieldError {
-  @Field()
-  field: string;
-
-  @Field()
-  message: string;
 }
 
 @ObjectType()
@@ -47,50 +37,31 @@ class UserResponse {
   user?: User;
 }
 
+@ObjectType()
+class Region {
+  @Field(() => [String], { nullable: true })
+  region?: String[];
+}
+
 @Resolver(User)
 export class UserResolver {
-  @Query(() => User, { nullable: true })
-  async me(@Ctx() { req, firestore }: MyContext): Promise<User | undefined> {
-    const phoneNumber = req.session.phoneNumber;
-    if (!phoneNumber) {
-      return undefined;
-    }
-    await firestore
-      .collection(CollectionType.User)
-      .doc(phoneNumber)
-      .get()
-      .then((querySnapshot) => {
-        const data = querySnapshot.data() as User;
-        data.phoneNumber = phoneNumber;
-        return data;
-      });
-
-    return undefined;
-  }
-
   // example to query using arguments
   @Query(() => UserResponse)
   async user(
     @Arg("phoneNumber") phoneNumber: string,
     @Ctx() { firestore }: MyContext
   ): Promise<UserResponse> {
-    const data = await firestore
+    const user = await firestore
       .collection(CollectionType.User)
       .doc(phoneNumber)
       .get()
       .then((querySnapshot) => {
-        const data = querySnapshot.data() as User;
-        data.phoneNumber = phoneNumber;
-        return data;
+        const user = querySnapshot.data() as User;
+        user.phoneNumber = phoneNumber;
+        return user;
       });
-    // const data = await firestore
-    //   .collection("User")
-    //   .where("username", "==", "bob")
-    //   .get()
-    //   .then((querySnapshot) => {
-    //     querySnapshot.docs.map((doc) => console.log(doc.data()));
-    //   });
-    if (!data) {
+
+    if (!user) {
       return {
         errors: [
           {
@@ -101,14 +72,15 @@ export class UserResolver {
       };
     }
     return {
-      user: data,
+      user: user,
     };
   }
 
   @Mutation(() => UserResponse)
-  async register(
+  async registerUser(
     @Arg("options") options: PhoneNumberPasswordInput,
     @Arg("username") username: string,
+    @Arg("region") region: string,
     @Ctx() { firestore, req }: MyContext
   ): Promise<UserResponse> {
     let errors = validatePhoneNumber(options.password);
@@ -130,12 +102,13 @@ export class UserResolver {
         .create({
           username: username,
           password: hash,
+          region: region,
         });
       user = {
         username: username,
         password: hash,
         phoneNumber: options.phoneNumber,
-        type: options.type
+        region: region,
       };
     } catch (err) {
       /* err type still unknown*/
@@ -151,25 +124,81 @@ export class UserResolver {
     }
     //auto-login
     req.session.phoneNumber = user!.phoneNumber;
+    req.session.userType = UserType.User;
     return { user: user! };
   }
 
   @Mutation(() => UserResponse)
-  async Login(
+  async loginUser(
     @Arg("options") options: PhoneNumberPasswordInput,
     @Ctx() { firestore, req }: MyContext
   ): Promise<UserResponse> {
-    const data = await firestore.collection(CollectionType.User)
-    .doc(options.phoneNumber)
-    .get()
-    .then((value)=>{
-      const data = value.data() as User;
-      data.phoneNumber = options.phoneNumber;
-      return data;
-    })
+    const user = await firestore
+      .collection(CollectionType.User)
+      .doc(options.phoneNumber)
+      .get()
+      .then((value) => {
+        const user = value.data() as User;
+        return user;
+      });
+    if (!user) {
+      return {
+        errors: [
+          {
+            field: FieldName.PhoneNumber,
+            message: "the user is not exist",
+          },
+        ],
+      };
+    }
+     const valid = await argon2.verify(user.password, options.password);
+     if (!valid) {
+       return {
+         errors: [
+           {
+             field: FieldName.Password,
+             message: "Wrong password!",
+           },
+         ],
+       };
+     }
+    user.phoneNumber = options.phoneNumber;
     req.session.phoneNumber = options.phoneNumber;
+    req.session.userType = UserType.User;
     return {
-      user: data,
+      user: user,
+    };
+  }
+
+  @Mutation(() => Boolean)
+  logout(@Ctx() { req, res }: MyContext) {
+    return new Promise((resolve) =>
+      req.session.destroy((err) => {
+        if (err) {
+          resolve(false);
+          return;
+        }
+        res.clearCookie(PHONE_NUMBER_COOKIE_NAME);
+        resolve(true);
+      })
+    );
+  }
+
+  @Query(() => Region)
+  async getAllRegion(@Ctx() { firestore }: MyContext): Promise<Region> {
+    const regions: string[] = [];
+    await firestore
+      .collection(UserType.User)
+      .get()
+      .then((querySnapshot) => {
+        querySnapshot.docs.map((value) => {
+          const user = value.data() as User;
+          regions.push(user.region);
+        });
+      });
+    const uniqueRegions = [...new Set(regions)];
+    return {
+      region: uniqueRegions,
     };
   }
 }

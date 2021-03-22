@@ -6,7 +6,7 @@ import { Redis } from 'ioredis';
 export type MyContext = {
   firestore: firebaseAdmin.firestore.Firestore;
   req: Request & {
-    session: Session & Partial<SessionData> & { phoneNumber?: string };
+    session: Session & Partial<SessionData> & { phoneNumber?: string, userType?: string};
   };
   res: Response;
   redis: Redis;

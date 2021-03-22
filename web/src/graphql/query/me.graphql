@@ -1,0 +1,17 @@
+query me{
+me{
+    errors{
+      field
+      message
+    }
+    user{
+      username
+      phoneNumber
+      region
+    }
+    admin{
+      username
+      phoneNumber
+    }
+  }
+}

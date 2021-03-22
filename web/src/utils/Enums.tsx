@@ -9,4 +9,9 @@ export const PageName={
   Home: "home"
 }
 
+export const FieldName = {
+  PhoneNumber: "phoneNumber",
+  Password: "password",
+};
+
 export default {};

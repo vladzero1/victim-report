@@ -12,6 +12,7 @@
   "description": "",
   "devDependencies": {
     "@types/connect-redis": "^0.0.16",
+    "@types/cors": "^2.8.10",
     "@types/node": "^14.14.35",
     "@types/redis": "^2.8.28",
     "firebase-admin": "^9.5.0",

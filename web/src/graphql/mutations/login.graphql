@@ -1,0 +1,26 @@
+mutation LoginUser ($options: PhoneNumberPasswordInput!){
+  loginUser(options: $options) {
+    errors {
+      field
+      message
+    }
+    user {
+      username
+      phoneNumber
+      region
+    }
+  }
+}
+
+mutation LoginAdmin ($options: PhoneNumberPasswordInput!) {
+  loginAdmin(options: $options) {
+    errors {
+      field
+      message
+    }
+    admin {
+      username
+      phoneNumber
+    }
+  }
+}

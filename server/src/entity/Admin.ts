@@ -1,7 +1,8 @@
 import { Field, ObjectType } from "type-graphql";
+import { Account } from "../utils/Account";
 
 @ObjectType()
-export class User {
+export class Admin implements Account {
   @Field(() => String)
   username!: string;
 
@@ -9,7 +10,4 @@ export class User {
   phoneNumber!: string;
 
   password!: string;
-  
-  @Field(()=>String)
-  type!: string;
 }

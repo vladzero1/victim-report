@@ -4,17 +4,18 @@ import {
   Field,
   InputType,
   Mutation,
-  // ObjectType,
-  // Query,
+  ObjectType,
+  Query,
   Resolver,
 } from "type-graphql";
 import { MyContext } from "../types";
-import { Victim } from "../class/Victim";
+import { Victim } from "../entity/Victim";
 import { CollectionType } from "../utils/enums";
+import { User } from "../entity/User";
 
 @InputType()
 class CreateVictimInput {
-@Field(() => String)
+  @Field(() => String)
   name!: string;
 
   @Field(() => String)
@@ -31,74 +32,176 @@ class CreateVictimInput {
 
   @Field(() => String)
   location!: string;
+
+  @Field(() => String)
+  region!: string;
 }
 
-// @ObjectType()
-// class FieldError {
-//   @Field()
-//   field: string;
+@ObjectType()
+class VictimList {
+  @Field(() => [String])
+  id?: string[];
 
-//   @Field()
-//   message: string;
-// }
-
-// @ObjectType()
-// class VictimResponse {
-//   @Field(() => [FieldError], { nullable: true })
-//   errors?: FieldError[];
-
-//   @Field(() => Victim, { nullable: true })
-//   victim?: Victim;
-// }
+  @Field(() => [Victim])
+  victims?: Victim[];
+}
 
 @Resolver(Victim)
 export class VictimResolver {
   @Mutation(() => Boolean)
   async createVictim(
-    @Arg("options",()=>CreateVictimInput) options: CreateVictimInput,
-    @Ctx() {firestore, req}: MyContext
+    @Arg("options", () => CreateVictimInput) options: CreateVictimInput,
+    @Ctx() { firestore, req }: MyContext
   ) {
     const phoneNumber = req.session.phoneNumber!;
-    let data = {} as Victim
+    let data = {} as Victim;
     data = { ...options, creatorPhoneNumber: phoneNumber };
-    firestore.collection(CollectionType.Victim)
-    .add(data)
-    return true;
+
+    await firestore
+      .collection(CollectionType.User)
+      .doc(phoneNumber)
+      .get()
+      .then((querySnapshot) => {
+        const data = querySnapshot.data() as User;
+        if(!data)
+          return false
+        return data;
+      });
+
+    try {
+      await firestore
+        .collection(CollectionType.Victim)
+        .add(data)
+      return true;
+    } catch (error) {
+      console.log(error);
+      
+    }
+    return false
   }
 
-  // example to query using arguments
-  // @Query(() => VictimResponse)
-  // async user(
-  //   @Arg("phoneNumber") phoneNumber: string,
-  //   @Ctx() { firestore }: MyContext
-  // ): Promise<VictimResponse> {
-  //   const data = await firestore
-  //     .collection("User")
-  //     .doc(phoneNumber)
-  //     .get()
-  //     .then((querySnapshot) => {
-  //       const data = querySnapshot.data() as Victim;
-  //       return data;
-  //     });
-  //   // const data = await firestore
-  //   //   .collection("User")
-  //   //   .where("username", "==", "bob")
-  //   //   .get()
-  //   //   .then((querySnapshot) => {
-  //   //     querySnapshot.docs.map((doc) => console.log(doc.data()));
-  //   //   });
-  //   if (!data) {
-  //     return {
-  //       errors: [
-  //         {
-  //           field: "phoneNumber",
-  //           message: "Phone Number is not exist",
-  //         },
-  //       ],
-  //     };
-  //   }
-  //   return {
-  //     user: data,
-  //   };
-  // }
+  @Mutation(() => Boolean)
+  async updateVictim(
+    @Arg("options", () => CreateVictimInput) options: CreateVictimInput,
+    @Arg("victimId") victimId: string,
+    @Ctx() { firestore, req }: MyContext
+  ): Promise<Boolean> {
+    const phoneNumber = req.session.phoneNumber!;
+    let data = {} as Victim;
+    data = { ...options, creatorPhoneNumber: phoneNumber };
+
+    const result = await firestore
+      .collection(CollectionType.User)
+      .doc(phoneNumber)
+      .get()
+      .then((querySnapshot) => {
+        const data = querySnapshot.data() as User;
+        return data;
+      });
+
+    if (!result.phoneNumber)
+      //account not found in user
+      return false;
+
+    try {
+      await firestore
+        .collection(CollectionType.Victim)
+        .doc(victimId)
+        .update(data);
+      return true;
+    } catch (err) {
+      console.log(err);
+    }
+
+    return false;
+  }
+
+  @Mutation(() => Boolean)
+  async deleteVictim(
+    @Arg("victimId") victimId: string,
+    @Ctx() { firestore, req }: MyContext
+  ) {
+    const phoneNumber = req.session.phoneNumber;
+    const victimData = await firestore
+      .collection(CollectionType.Victim)
+      .doc(victimId)
+      .get()
+      .then((querySnapshot) => {
+        return querySnapshot.data() as Victim;
+      });
+
+    if (victimData.creatorPhoneNumber !== phoneNumber) {
+      return false;
+    }
+
+    try {
+      await firestore.collection(CollectionType.Victim).doc(victimId).delete();
+      return true;
+    } catch (err) {
+      return false;
+    }
+  }
+
+  @Query(() => VictimList)
+  async victims(@Ctx() { firestore, req }: MyContext): Promise<VictimList> {
+    const phoneNumber = req.session.phoneNumber;
+    let ids: string[] = [];
+    let victims: Victim[] = [];
+
+    await firestore
+      .collection(CollectionType.Victim)
+      .get()
+      .then((querySnapshot) => {
+        querySnapshot.docs.map((doc) => {
+          const data = doc.data() as Victim;
+
+          if (data.creatorPhoneNumber == phoneNumber) {
+            ids.push(doc.id);
+            victims.push(data);
+          }
+        });
+      });
+    return {
+      id: ids!,
+      victims: victims!,
+    };
+  }
+
+  @Query(() => VictimList)
+  async victimsByRegion(  
+    @Arg("region") region: string,
+    @Ctx() { firestore, req }: MyContext
+  ): Promise<VictimList> {
+    const phoneNumber = req.session.phoneNumber!;
+    let ids: string[] = [];
+    let victims: Victim[] = [];
+
+    const data = await firestore
+    .collection(CollectionType.Admin)
+    .doc(phoneNumber)
+    .get()
+    .then((querySnapshot) =>{
+      return querySnapshot.data();
+    })
+    if(data!)
+      return {}
+
+    await firestore
+      .collection(CollectionType.Victim)
+      .get()
+      .then((querySnapshot) => {
+        querySnapshot.docs.map((doc) => {
+          const data = doc.data() as Victim;
+
+          if (data.region === region) {
+            ids.push(doc.id);
+            victims.push(data);
+          }
+        });
+      });
+      return{
+        id: ids,
+        victims: victims
+      }
+  }
 }
