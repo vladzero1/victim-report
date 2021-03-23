@@ -141,6 +141,7 @@ export class UserResolver {
         const user = value.data() as User;
         return user;
       });
+      console.log("login");
     if (!user) {
       return {
         errors: [

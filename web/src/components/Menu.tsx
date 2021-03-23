@@ -1,6 +1,5 @@
 import {
   IonContent,
-  IonIcon,
   IonItem,
   IonLabel,
   IonList,
@@ -8,7 +7,6 @@ import {
   IonMenu,
   IonMenuToggle,
 } from "@ionic/react";
-import { bookmarkOutline } from "ionicons/icons";
 import { useLocation } from "react-router-dom";
 import { useMeQuery } from "../generated/graphql";
 import { PageName } from "../utils/Enums";
@@ -41,8 +39,6 @@ const appPages: AppPage[] = [
     // mdIcon: heartSharp
   },
 ];
-
-const labels = ["Family", "Friends", "Notes", "Work", "Travel", "Reminders"];
 
 const Menu: React.FC = () => {
   const location = useLocation();
@@ -113,15 +109,6 @@ const Menu: React.FC = () => {
           {body}
         </IonList>
 
-        <IonList id="labels-list">
-          <IonListHeader>Labels</IonListHeader>
-          {labels.map((label, index) => (
-            <IonItem lines="none" key={index}>
-              <IonIcon slot="start" icon={bookmarkOutline} />
-              <IonLabel>{label}</IonLabel>
-            </IonItem>
-          ))}
-        </IonList>
       </IonContent>
     </IonMenu>
   );
