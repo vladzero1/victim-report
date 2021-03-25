@@ -1,4 +1,4 @@
-import {  IonAvatar, IonContent, IonItem, IonLabel, IonList, IonPage } from "@ionic/react";
+import {  IonAvatar, IonButton, IonContent, IonItem, IonLabel, IonList, IonPage } from "@ionic/react";
 import React from "react";
 import { Layout } from "../../components/Layout";
 import { PageName } from "../../utils/Enums";
@@ -33,7 +33,8 @@ export const ViewVictim: React.FC<{}> = ({}) => {
                       region: {victim.region} <br />
                       location: {victim.location}
                     </IonLabel>
-                    
+                    <IonButton>edit</IonButton>
+                    <IonButton>delete</IonButton>
                   </IonItem>
                 );
               })}
