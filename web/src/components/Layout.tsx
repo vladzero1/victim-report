@@ -13,13 +13,16 @@ interface LayoutProps {
 
 export const Layout: React.FC<LayoutProps> = ({ name }) => {
   return (
-    <IonHeader>
-      <IonToolbar>
-        <IonButtons slot="start">
-          <IonMenuButton />
-        </IonButtons>
-        <IonTitle>{name}</IonTitle>
-      </IonToolbar>
-    </IonHeader>
+    
+    // <IonContent>
+      <IonHeader>
+        <IonToolbar>
+          <IonButtons slot="start">
+            <IonMenuButton />
+          </IonButtons>
+          <IonTitle>{name}</IonTitle>
+        </IonToolbar>
+      </IonHeader>
+    // </IonContent>
   );
 };

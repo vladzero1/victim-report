@@ -4,14 +4,22 @@ export const UserType = {
 };
 
 export const PageName={
-  Login: "login",
-  Register: "register",
-  Home: "home"
+  Login: "Login",
+  Register: "Register",
+  Home: "Home",
+  CreateVictims: "Create Victims",
+  UpdateVitcim: "Update Victim",
+  ViewVictims: "View Victims"
 }
 
 export const FieldName = {
   PhoneNumber: "phoneNumber",
   Password: "password",
+};
+
+export const Gender = {
+  Male: "Male",
+  Female: "Female",
 };
 
 export default {};

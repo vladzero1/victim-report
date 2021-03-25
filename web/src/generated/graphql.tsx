@@ -160,6 +160,16 @@ export type CreateVictimInput = {
   region: Scalars['String'];
 };
 
+export type CreateVictimMutationVariables = Exact<{
+  options: CreateVictimInput;
+}>;
+
+
+export type CreateVictimMutation = (
+  { __typename?: 'Mutation' }
+  & Pick<Mutation, 'createVictim'>
+);
+
 export type LoginUserMutationVariables = Exact<{
   options: PhoneNumberPasswordInput;
 }>;
@@ -259,7 +269,53 @@ export type MeQuery = (
   )> }
 );
 
+export type AllVictimsQueryVariables = Exact<{ [key: string]: never; }>;
 
+
+export type AllVictimsQuery = (
+  { __typename?: 'Query' }
+  & { victims: (
+    { __typename?: 'VictimList' }
+    & Pick<VictimList, 'id'>
+    & { victims: Array<(
+      { __typename?: 'Victim' }
+      & Pick<Victim, 'name' | 'age' | 'address' | 'photo' | 'gender' | 'location' | 'region' | 'creatorPhoneNumber'>
+    )> }
+  ) }
+);
+
+
+export const CreateVictimDocument = gql`
+    mutation createVictim($options: CreateVictimInput!) {
+  createVictim(options: $options)
+}
+    `;
+export type CreateVictimMutationFn = Apollo.MutationFunction<CreateVictimMutation, CreateVictimMutationVariables>;
+
+/**
+ * __useCreateVictimMutation__
+ *
+ * To run a mutation, you first call `useCreateVictimMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useCreateVictimMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [createVictimMutation, { data, loading, error }] = useCreateVictimMutation({
+ *   variables: {
+ *      options: // value for 'options'
+ *   },
+ * });
+ */
+export function useCreateVictimMutation(baseOptions?: Apollo.MutationHookOptions<CreateVictimMutation, CreateVictimMutationVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useMutation<CreateVictimMutation, CreateVictimMutationVariables>(CreateVictimDocument, options);
+      }
+export type CreateVictimMutationHookResult = ReturnType<typeof useCreateVictimMutation>;
+export type CreateVictimMutationResult = Apollo.MutationResult<CreateVictimMutation>;
+export type CreateVictimMutationOptions = Apollo.BaseMutationOptions<CreateVictimMutation, CreateVictimMutationVariables>;
 export const LoginUserDocument = gql`
     mutation LoginUser($options: PhoneNumberPasswordInput!) {
   loginUser(options: $options) {
@@ -471,3 +527,47 @@ export function useMeLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<MeQuery
 export type MeQueryHookResult = ReturnType<typeof useMeQuery>;
 export type MeLazyQueryHookResult = ReturnType<typeof useMeLazyQuery>;
 export type MeQueryResult = Apollo.QueryResult<MeQuery, MeQueryVariables>;
+export const AllVictimsDocument = gql`
+    query allVictims {
+  victims {
+    id
+    victims {
+      name
+      age
+      address
+      photo
+      gender
+      location
+      region
+      creatorPhoneNumber
+    }
+  }
+}
+    `;
+
+/**
+ * __useAllVictimsQuery__
+ *
+ * To run a query within a React component, call `useAllVictimsQuery` and pass it any options that fit your needs.
+ * When your component renders, `useAllVictimsQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useAllVictimsQuery({
+ *   variables: {
+ *   },
+ * });
+ */
+export function useAllVictimsQuery(baseOptions?: Apollo.QueryHookOptions<AllVictimsQuery, AllVictimsQueryVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useQuery<AllVictimsQuery, AllVictimsQueryVariables>(AllVictimsDocument, options);
+      }
+export function useAllVictimsLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<AllVictimsQuery, AllVictimsQueryVariables>) {
+          const options = {...defaultOptions, ...baseOptions}
+          return Apollo.useLazyQuery<AllVictimsQuery, AllVictimsQueryVariables>(AllVictimsDocument, options);
+        }
+export type AllVictimsQueryHookResult = ReturnType<typeof useAllVictimsQuery>;
+export type AllVictimsLazyQueryHookResult = ReturnType<typeof useAllVictimsLazyQuery>;
+export type AllVictimsQueryResult = Apollo.QueryResult<AllVictimsQuery, AllVictimsQueryVariables>;

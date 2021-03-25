@@ -1,21 +1,20 @@
 import {
   IonContent,
+  IonHeader,
   IonItem,
   IonLabel,
   IonList,
-  IonListHeader,
   IonMenu,
   IonMenuToggle,
 } from "@ionic/react";
-import { useLocation } from "react-router-dom";
+import React from "react";
+import { useLocation } from "react-router";
 import { useMeQuery } from "../generated/graphql";
 import { PageName } from "../utils/Enums";
 import "./Menu.css";
 
 interface AppPage {
   url: string;
-  // iosIcon: string;
-  // mdIcon: string;
   title: string;
 }
 
@@ -23,20 +22,18 @@ const appPages: AppPage[] = [
   {
     title: PageName.Home,
     url: "/home",
-    // iosIcon: mailOutline,
-    // mdIcon: mailSharp
   },
   {
     title: PageName.Login,
     url: "/login",
-    // iosIcon: paperPlaneOutline,
-    // mdIcon: paperPlaneSharp
   },
   {
     title: PageName.Register,
     url: "/register",
-    // iosIcon: heartOutline,
-    // mdIcon: heartSharp
+  },
+  {
+    title: PageName.ViewVictims,
+    url: "/victims/view",
   },
 ];
 
@@ -47,68 +44,64 @@ const Menu: React.FC = () => {
   let header = null;
   //still loading
   if (loading) {
-    console.log(`loading = ${loading}`);
     //not Logged in
-  } else if (!data?.me) {
-    console.log(`not logged`)
+  } else if (!data?.me && !loading) {
+    header = (
+      <IonHeader>Menu</IonHeader>
+    );
     body = appPages.map((appPage, index) => {
       return (
-        <IonMenuToggle key={index} autoHide={false}>
           <IonItem
             className={location.pathname === appPage.url ? "selected" : ""}
             routerLink={appPage.url}
             routerDirection="none"
             lines="none"
             detail={false}
+            key={index}
           >
-            {/* <IonIcon slot="start" ios={appPage.iosIcon} md={appPage.mdIcon} /> */}
             <IonLabel>{appPage.title}</IonLabel>
           </IonItem>
-        </IonMenuToggle>
       );
     });
     //logged in
   } else {
-    console.log(`logged in= ${data}`);
-
     header = (
       <>
-        <IonListHeader>Welcome</IonListHeader>
-        <IonListHeader>
+        <IonHeader key="header">
+          Welcome,
+          <br />
           {data?.me?.user !== null
             ? data!.me?.user?.username
             : data.me.admin?.username}
-        </IonListHeader>
+        </IonHeader>
       </>
     );
     body = appPages.map((appPage, index) => {
       return (
-        <IonMenuToggle key={index} autoHide={false}>
+        <>
           {appPage.url === "/login" || appPage.url === "/register" ? null : (
             <IonItem
+              key={index}
               className={location.pathname === appPage.url ? "selected" : ""}
               routerLink={appPage.url}
               routerDirection="none"
               lines="none"
               detail={false}
             >
-              {/* <IonIcon slot="start" ios={appPage.iosIcon} md={appPage.mdIcon} /> */}
               <IonLabel>{appPage.title}</IonLabel>
             </IonItem>
           )}
-        </IonMenuToggle>
+        </>
       );
     });
   }
   return (
     <IonMenu contentId="main" type="overlay">
       <IonContent>
-        <IonList id="inbox-list">
-          {header}
-          <IonListHeader>Menu</IonListHeader>
-          {body}
+        {header}
+        <IonList key="Menu">
+          <IonMenuToggle key="MenuToogle">{body}</IonMenuToggle>
         </IonList>
-
       </IonContent>
     </IonMenu>
   );

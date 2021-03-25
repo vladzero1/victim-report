@@ -5,16 +5,18 @@ import {
   IonSelect,
   IonSelectOption,
 } from "@ionic/react";
-import React, { useState } from "react";
+import React, { HTMLAttributes, useState } from "react";
 
 type InputSelectionProps = {
   category: string;
   values: string[];
-};
+  value?: string;
+} & HTMLAttributes<HTMLIonInputElement>;
 //incomplete. cannot get the value from outside
 const InputSelection: React.FC<InputSelectionProps> = ({
   category,
   values,
+  value
 }) => {
   const [categoryValue, setCategoryValue] = useState("");
   return (
@@ -26,6 +28,8 @@ const InputSelection: React.FC<InputSelectionProps> = ({
           placeholder="Select One"
           onIonChange={(e) => {
             setCategoryValue(e.detail.value);
+            value = e.detail.value
+            console.log(value);
           }}
         >
           {values.map((value) => (
@@ -38,5 +42,4 @@ const InputSelection: React.FC<InputSelectionProps> = ({
     </IonList>
   );
 };
-
 export default InputSelection;

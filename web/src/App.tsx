@@ -1,6 +1,6 @@
 import { IonApp, IonRouterOutlet, IonSplitPane } from "@ionic/react";
 import { IonReactRouter } from "@ionic/react-router";
-import { Redirect, Route } from "react-router-dom";
+import { Redirect, Route, Switch } from "react-router-dom";
 import Menu from "./components/Menu";
 
 /* Core CSS required for Ionic components to work properly */
@@ -25,6 +25,9 @@ import React from "react";
 import { Home } from "./pages/Home";
 import { Register } from "./pages/Register";
 import { Login } from "./pages/Login";
+import { ViewVictim } from "./pages/victims/ViewVictims";
+import { UpdateVictim } from "./pages/victims/UpdateVictim";
+import { CreateVictim } from "./pages/victims/CreateVictim";
 
 const App: React.FC = () => {
   return (
@@ -33,10 +36,15 @@ const App: React.FC = () => {
         <IonSplitPane contentId="main">
           <Menu />
           <IonRouterOutlet id="main">
-            <Route exact path="/" render={() => <Redirect to="/home" />} />
-            <Route path="/home" component={Home} exact={true} />
-            <Route path="/register" component={Register} exact={true} />
-            <Route path="/login" component={Login} exact={true} />
+            <Switch>
+              <Route exact path="/" render={() => <Redirect to="/home" />} />
+              <Route path="/home" component={Home} exact={true} />
+              <Route path="/register" component={Register} exact={true} />
+              <Route path="/login" component={Login} exact={true} />
+              <Route path="/victims/create" component={CreateVictim} />
+              <Route path="/victims/update/:id" component={UpdateVictim} />
+              <Route path="/victims/view" component={ViewVictim} />
+            </Switch>
           </IonRouterOutlet>
         </IonSplitPane>
       </IonReactRouter>

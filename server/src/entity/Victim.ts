@@ -1,12 +1,12 @@
-import { Field, ObjectType } from "type-graphql";
+import { Field, Int, ObjectType } from "type-graphql";
 
 @ObjectType()
 export class Victim {
   @Field(() => String)
   name!: string;
 
-  @Field(() => String)
-  age!: string;
+  @Field(() => Int)
+  age!: number;
 
   @Field(() => String)
   address!: string;

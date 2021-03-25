@@ -1,0 +1,15 @@
+query allVictims {
+  victims {
+    id
+    victims {
+      name
+      age
+      address
+      photo
+      gender
+      location
+      region
+      creatorPhoneNumber
+    }
+  }
+}

@@ -1,0 +1,3 @@
+mutation createVictim($options: CreateVictimInput!){
+  createVictim(options: $options)
+}

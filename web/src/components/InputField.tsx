@@ -27,7 +27,7 @@ const InputField: React.FC<InputFieldProps> = ({
         <IonInput
           {...props}
           type="password"
-          onInput={(e) => {
+          onChange={(e) => {
             props.value = e.currentTarget.value;
           }}
         />

@@ -3,6 +3,7 @@ import {
   Ctx,
   Field,
   InputType,
+  Int,
   Mutation,
   ObjectType,
   Query,
@@ -18,8 +19,8 @@ class CreateVictimInput {
   @Field(() => String)
   name!: string;
 
-  @Field(() => String)
-  age!: string;
+  @Field(() => Int)
+  age!: number;
 
   @Field(() => String)
   address!: string;

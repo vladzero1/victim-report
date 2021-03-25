@@ -2,7 +2,6 @@ import {
   IonButton,
   IonCheckbox,
   IonContent,
-  IonInput,
   IonItem,
   IonLabel,
   IonList,
@@ -12,6 +11,7 @@ import {
   useIonRouter,
 } from "@ionic/react";
 import React, { useState } from "react";
+import { useHistory } from "react-router";
 import InputField from "../components/InputField";
 import { Layout } from "../components/Layout";
 import {
@@ -22,18 +22,18 @@ import {
 import { FieldName, PageName, UserType } from "../utils/Enums";
 
 interface LoginProps {}
-const list = [UserType.Admin, UserType.User];
+
 export const Login: React.FC<LoginProps> = ({}) => {
+  const list = [UserType.Admin, UserType.User];
   const router = useIonRouter();
+  const history = useHistory();
   const [loginUser] = useLoginUserMutation();
-  const [loginAdmin, adminData] = useLoginAdminMutation();
+  const [loginAdmin] = useLoginAdminMutation();
   const [userTypeValue, setUserTypeValue] = useState("");
   const [errMsg, setErrMsg] = useState("");
   const [errField, setErrField] = useState("");
-  const [] = useLoginAdminMutation();
   const [phoneNumber, setPhoneNumber] = useState("");
   const [password, setPassword] = useState("");
-
   return (
     <>
       <IonPage>
@@ -46,27 +46,18 @@ export const Login: React.FC<LoginProps> = ({}) => {
               setPhoneNumber(e.currentTarget.value?.toString()!);
             }}
           />
-          {/* inputField component is bugged cannot take value if it is password type*/}
-          <IonItem>
-            <IonLabel position="floating">Password</IonLabel>
-            {errMsg !== null ? (
-              <IonLabel position="floating" color="danger">
-                {errMsg}
-              </IonLabel>
-            ) : null}
-            <IonInput
-              type="password"
-              onInput={(e) => {
-                setPassword(e.currentTarget.value?.toString()!);
-              }}
-            />
-          </IonItem>
+          <InputField
+            label="Password"
+            type="password"
+            errMsg={errField === FieldName.Password ? errMsg : null}
+            onInput={(e) => {
+              setPassword(e.currentTarget.value?.toString()!);
+            }}
+          />
           <IonList>
-            {/* input selection component is bugged cannot take value*/}
             <IonItem>
-              <IonLabel>UserType</IonLabel>
+              <IonLabel>User Type</IonLabel>
               <IonSelect
-                value={userTypeValue}
                 placeholder="Select One"
                 onIonChange={(e) => {
                   setUserTypeValue(e.detail.value);
@@ -80,7 +71,6 @@ export const Login: React.FC<LoginProps> = ({}) => {
               </IonSelect>
             </IonItem>
           </IonList>
-
           <IonItem lines="none">
             <IonLabel>Remember me</IonLabel>
             <IonCheckbox defaultChecked={true} slot="start" />
@@ -94,20 +84,21 @@ export const Login: React.FC<LoginProps> = ({}) => {
                 phoneNumber: phoneNumber,
                 password: password,
               };
-              console.log(`password=${password}`);
               if (userTypeValue === UserType.User) {
                 let response = await loginUser({
                   variables: { options: options },
                 });
                 if (response!.data?.loginUser.errors) {
                   response.data?.loginUser.errors.map((value) => {
-                    console.log(value);
                     setErrField(value.field);
                     setErrMsg(value.message);
                   });
                 } else {
-                  console.log(response.data?.loginUser.user);
-                  router.push("/");
+                  
+                  if (router.routeInfo.pathname !== "/login") {
+                    router.goBack();
+                  }
+                  history.push("/");
                 }
               }
               if (userTypeValue === UserType.Admin) {
@@ -116,12 +107,13 @@ export const Login: React.FC<LoginProps> = ({}) => {
                 });
                 if (response!.data?.loginAdmin.errors) {
                   response.data?.loginAdmin.errors.map((value) => {
-                    console.log(value);
                     setErrField(value.field);
                     setErrMsg(value.message);
                   });
                 } else {
-                  console.log(adminData.data);
+                  if (router.routeInfo.pathname !== "/login") {
+                    router.goBack();
+                  }
                   router.push("/");
                 }
               }
