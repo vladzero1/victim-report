@@ -35,6 +35,10 @@ const appPages: AppPage[] = [
     title: PageName.ViewVictims,
     url: "/victims/view",
   },
+  {
+    title: PageName.CreateVictims,
+    url: "/victims/create",
+  },
 ];
 
 const Menu: React.FC = () => {
@@ -46,53 +50,49 @@ const Menu: React.FC = () => {
   if (loading) {
     //not Logged in
   } else if (!data?.me && !loading) {
-    header = (
-      <IonHeader>Menu</IonHeader>
-    );
+    header = <IonHeader key="header">Menu</IonHeader>;
     body = appPages.map((appPage, index) => {
       return (
-          <IonItem
-            className={location.pathname === appPage.url ? "selected" : ""}
-            routerLink={appPage.url}
-            routerDirection="none"
-            lines="none"
-            detail={false}
-            key={index}
-          >
-            <IonLabel>{appPage.title}</IonLabel>
-          </IonItem>
+        <IonItem
+          className={location.pathname === appPage.url ? "selected" : ""}
+          routerLink={appPage.url}
+          routerDirection="none"
+          lines="none"
+          detail={false}
+          key={index}
+        >
+          <IonLabel>{appPage.title}</IonLabel>
+        </IonItem>
       );
     });
     //logged in
   } else {
     header = (
-      <>
-        <IonHeader key="header">
-          Welcome,
-          <br />
-          {data?.me?.user !== null
-            ? data!.me?.user?.username
-            : data.me.admin?.username}
-        </IonHeader>
-      </>
+      <IonHeader key="header">
+        Welcome,
+        <br />
+        {data?.me?.user !== null
+          ? data!.me?.user?.username
+          : data.me.admin?.username}
+      </IonHeader>
     );
     body = appPages.map((appPage, index) => {
-      return (
-        <>
-          {appPage.url === "/login" || appPage.url === "/register" ? null : (
-            <IonItem
-              key={index}
-              className={location.pathname === appPage.url ? "selected" : ""}
-              routerLink={appPage.url}
-              routerDirection="none"
-              lines="none"
-              detail={false}
-            >
-              <IonLabel>{appPage.title}</IonLabel>
-            </IonItem>
-          )}
-        </>
-      );
+      if (appPage.url === "/login" || appPage.url === "/register") {
+        return null;
+      } else {
+        return (
+          <IonItem
+            key={index}
+            className={location.pathname === appPage.url ? "selected" : ""}
+            routerLink={appPage.url}
+            routerDirection="none"
+            lines="none"
+            detail={false}
+          >
+            <IonLabel>{appPage.title}</IonLabel>
+          </IonItem>
+        );
+      }
     });
   }
   return (

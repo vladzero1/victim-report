@@ -1,17 +1,18 @@
 import { IonLabel, IonInput, IonItem } from "@ionic/react";
 import React, { HTMLAttributes } from "react";
+import { TextFieldTypes } from "../utils/Types";
 
 type InputFieldProps = HTMLAttributes<HTMLIonInputElement> & {
   label: string;
-  type?: string;
+  type?: TextFieldTypes;
   value?: string | number | null | undefined;
   errMsg?: string | null;
 };
 
 const InputField: React.FC<InputFieldProps> = ({
   label,
-  type,
-  errMsg,
+  type="text",
+  errMsg = null,
   ...props
 }) => {
   return (
@@ -23,22 +24,13 @@ const InputField: React.FC<InputFieldProps> = ({
         </IonLabel>
       ) : null}
 
-      {type === "password" ? (
         <IonInput
           {...props}
-          type="password"
+          type={type}
           onChange={(e) => {
             props.value = e.currentTarget.value;
           }}
         />
-      ) : (
-        <IonInput
-          {...props}
-          onChange={(e) => {
-            props.value = e.currentTarget.value;
-          }}
-        />
-      )}
     </IonItem>
   );
 };

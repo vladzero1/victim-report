@@ -1,7 +1,7 @@
 query allVictims {
   victims {
-    id
     victims {
+      id
       name
       age
       address

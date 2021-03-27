@@ -16,16 +16,16 @@ import {
   useCreateVictimMutation,
   useMeLazyQuery,
 } from "../../generated/graphql";
-import { PageName, Gender } from "../../utils/Enums";
+import { genderList } from "../../utils/constant";
+import { PageName } from "../../utils/Enums";
 
 interface CreateVictimsProps {}
 
 export const CreateVictim: React.FC<CreateVictimsProps> = ({}) => {
   const [createVictim] = useCreateVictimMutation();
   const [me, { data, loading}] = useMeLazyQuery();
-  const genderList = [Gender.Male, Gender.Female];
   const [name, setName] = useState("");
-  const [age, setAge] = useState("");
+  const [age, setAge] = useState(0);
   const [address, setAddress] = useState("");
   const [photo, setPhoto] = useState("");
   const [gender, setGender] = useState("");
@@ -47,7 +47,7 @@ export const CreateVictim: React.FC<CreateVictimsProps> = ({}) => {
             label="Age"
             // errMsg={errField === FieldName.Password ? errMsg : null}
             onInput={(e) => {
-              setAge(e.currentTarget.value?.toString()!);
+              setAge(e.currentTarget.value as number);
             }}
           />
           <IonList>
@@ -92,6 +92,7 @@ export const CreateVictim: React.FC<CreateVictimsProps> = ({}) => {
             className="ion-margin-top"
             type="submit"
             expand="block"
+            routerLink="/victims/view"
             onClick={async ({}) => {
               me();
               const options: CreateVictimInput = {
@@ -103,7 +104,7 @@ export const CreateVictim: React.FC<CreateVictimsProps> = ({}) => {
                 photo: photo,
                 region: data?.me?.user?.region!,
               };
-              if(!loading)
+              if (!loading)
                 await createVictim({ variables: { options: options } });
             }}
           >

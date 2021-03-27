@@ -26,7 +26,6 @@ import { Home } from "./pages/Home";
 import { Register } from "./pages/Register";
 import { Login } from "./pages/Login";
 import { ViewVictim } from "./pages/victims/ViewVictims";
-import { UpdateVictim } from "./pages/victims/UpdateVictim";
 import { CreateVictim } from "./pages/victims/CreateVictim";
 
 const App: React.FC = () => {
@@ -42,7 +41,6 @@ const App: React.FC = () => {
               <Route path="/register" component={Register} exact={true} />
               <Route path="/login" component={Login} exact={true} />
               <Route path="/victims/create" component={CreateVictim} />
-              <Route path="/victims/update/:id" component={UpdateVictim} />
               <Route path="/victims/view" component={ViewVictim} />
             </Switch>
           </IonRouterOutlet>

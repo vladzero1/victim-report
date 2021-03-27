@@ -5,20 +5,13 @@ import {
   IonItem,
   IonLabel,
   IonList,
-  IonPage,
-  IonSelect,
-  IonSelectOption,
-  useIonRouter,
+  IonPage, IonSelect, IonSelectOption, useIonRouter
 } from "@ionic/react";
 import React, { useState } from "react";
 import { useHistory } from "react-router";
 import InputField from "../components/InputField";
 import { Layout } from "../components/Layout";
-import {
-  PhoneNumberPasswordInput,
-  useLoginAdminMutation,
-  useLoginUserMutation,
-} from "../generated/graphql";
+import { PhoneNumberPasswordInput, useLoginAdminMutation, useLoginUserMutation } from "../generated/graphql";
 import { FieldName, PageName, UserType } from "../utils/Enums";
 
 interface LoginProps {}

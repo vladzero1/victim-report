@@ -39,12 +39,40 @@ class CreateVictimInput {
 }
 
 @ObjectType()
-class VictimList {
-  @Field(() => [String])
-  id?: string[];
+class VictimData {
+  @Field(() => String)
+  id!: string;
 
-  @Field(() => [Victim])
-  victims?: Victim[];
+  @Field(() => String)
+  name!: string;
+
+  @Field(() => Int)
+  age!: number;
+
+  @Field(() => String)
+  address!: string;
+
+  @Field(() => String)
+  photo!: string;
+
+  @Field(() => String)
+  gender!: string;
+
+  @Field(() => String)
+  location!: string;
+
+  @Field(() => String)
+  creatorPhoneNumber!: string;
+
+  @Field(() => String)
+  region: string;
+}
+
+@ObjectType()
+class VictimList {
+
+  @Field(() => [VictimData])
+  victims?: VictimData[];
 }
 
 @Resolver(Victim)
@@ -100,7 +128,7 @@ export class VictimResolver {
         return data;
       });
 
-    if (!result.phoneNumber)
+    if (!result)
       //account not found in user
       return false;
 
@@ -144,26 +172,20 @@ export class VictimResolver {
   }
 
   @Query(() => VictimList)
-  async victims(@Ctx() { firestore, req }: MyContext): Promise<VictimList> {
-    const phoneNumber = req.session.phoneNumber;
-    let ids: string[] = [];
-    let victims: Victim[] = [];
+  async victims(@Ctx() { firestore }: MyContext): Promise<VictimList> {
+    let victims: VictimData[] = [];
 
     await firestore
       .collection(CollectionType.Victim)
       .get()
       .then((querySnapshot) => {
         querySnapshot.docs.map((doc) => {
-          const data = doc.data() as Victim;
-
-          if (data.creatorPhoneNumber == phoneNumber) {
-            ids.push(doc.id);
-            victims.push(data);
-          }
+          const data = doc.data() as VictimData;
+          data.id = doc.id;
+          victims.push(data);
         });
       });
     return {
-      id: ids!,
       victims: victims!,
     };
   }
@@ -174,8 +196,7 @@ export class VictimResolver {
     @Ctx() { firestore, req }: MyContext
   ): Promise<VictimList> {
     const phoneNumber = req.session.phoneNumber!;
-    let ids: string[] = [];
-    let victims: Victim[] = [];
+    let victims: VictimData[] = [];
 
     const data = await firestore
     .collection(CollectionType.Admin)
@@ -192,16 +213,14 @@ export class VictimResolver {
       .get()
       .then((querySnapshot) => {
         querySnapshot.docs.map((doc) => {
-          const data = doc.data() as Victim;
-
+          const data = doc.data() as VictimData;
+          data.id = doc.id
           if (data.region === region) {
-            ids.push(doc.id);
             victims.push(data);
           }
         });
       });
       return{
-        id: ids,
         victims: victims
       }
   }

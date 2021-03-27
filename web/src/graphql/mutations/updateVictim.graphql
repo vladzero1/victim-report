@@ -1,0 +1,3 @@
+mutation updateVictim($victimId: String!, $options: CreateVictimInput!) {
+  updateVictim(victimId: $victimId, options: $options)
+}

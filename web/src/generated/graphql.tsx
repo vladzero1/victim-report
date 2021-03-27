@@ -72,14 +72,14 @@ export type Admin = {
 
 export type VictimList = {
   __typename?: 'VictimList';
-  id: Array<Scalars['String']>;
-  victims: Array<Victim>;
+  victims: Array<VictimData>;
 };
 
-export type Victim = {
-  __typename?: 'Victim';
+export type VictimData = {
+  __typename?: 'VictimData';
+  id: Scalars['String'];
   name: Scalars['String'];
-  age: Scalars['String'];
+  age: Scalars['Int'];
   address: Scalars['String'];
   photo: Scalars['String'];
   gender: Scalars['String'];
@@ -152,7 +152,7 @@ export type AdminResponse = {
 
 export type CreateVictimInput = {
   name: Scalars['String'];
-  age: Scalars['String'];
+  age: Scalars['Int'];
   address: Scalars['String'];
   photo: Scalars['String'];
   gender: Scalars['String'];
@@ -168,6 +168,16 @@ export type CreateVictimMutationVariables = Exact<{
 export type CreateVictimMutation = (
   { __typename?: 'Mutation' }
   & Pick<Mutation, 'createVictim'>
+);
+
+export type DeleteVictimMutationVariables = Exact<{
+  victimId: Scalars['String'];
+}>;
+
+
+export type DeleteVictimMutation = (
+  { __typename?: 'Mutation' }
+  & Pick<Mutation, 'deleteVictim'>
 );
 
 export type LoginUserMutationVariables = Exact<{
@@ -249,6 +259,17 @@ export type RegisterAdminMutation = (
   ) }
 );
 
+export type UpdateVictimMutationVariables = Exact<{
+  victimId: Scalars['String'];
+  options: CreateVictimInput;
+}>;
+
+
+export type UpdateVictimMutation = (
+  { __typename?: 'Mutation' }
+  & Pick<Mutation, 'updateVictim'>
+);
+
 export type MeQueryVariables = Exact<{ [key: string]: never; }>;
 
 
@@ -276,10 +297,9 @@ export type AllVictimsQuery = (
   { __typename?: 'Query' }
   & { victims: (
     { __typename?: 'VictimList' }
-    & Pick<VictimList, 'id'>
     & { victims: Array<(
-      { __typename?: 'Victim' }
-      & Pick<Victim, 'name' | 'age' | 'address' | 'photo' | 'gender' | 'location' | 'region' | 'creatorPhoneNumber'>
+      { __typename?: 'VictimData' }
+      & Pick<VictimData, 'id' | 'name' | 'age' | 'address' | 'photo' | 'gender' | 'location' | 'region' | 'creatorPhoneNumber'>
     )> }
   ) }
 );
@@ -316,6 +336,37 @@ export function useCreateVictimMutation(baseOptions?: Apollo.MutationHookOptions
 export type CreateVictimMutationHookResult = ReturnType<typeof useCreateVictimMutation>;
 export type CreateVictimMutationResult = Apollo.MutationResult<CreateVictimMutation>;
 export type CreateVictimMutationOptions = Apollo.BaseMutationOptions<CreateVictimMutation, CreateVictimMutationVariables>;
+export const DeleteVictimDocument = gql`
+    mutation deleteVictim($victimId: String!) {
+  deleteVictim(victimId: $victimId)
+}
+    `;
+export type DeleteVictimMutationFn = Apollo.MutationFunction<DeleteVictimMutation, DeleteVictimMutationVariables>;
+
+/**
+ * __useDeleteVictimMutation__
+ *
+ * To run a mutation, you first call `useDeleteVictimMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useDeleteVictimMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [deleteVictimMutation, { data, loading, error }] = useDeleteVictimMutation({
+ *   variables: {
+ *      victimId: // value for 'victimId'
+ *   },
+ * });
+ */
+export function useDeleteVictimMutation(baseOptions?: Apollo.MutationHookOptions<DeleteVictimMutation, DeleteVictimMutationVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useMutation<DeleteVictimMutation, DeleteVictimMutationVariables>(DeleteVictimDocument, options);
+      }
+export type DeleteVictimMutationHookResult = ReturnType<typeof useDeleteVictimMutation>;
+export type DeleteVictimMutationResult = Apollo.MutationResult<DeleteVictimMutation>;
+export type DeleteVictimMutationOptions = Apollo.BaseMutationOptions<DeleteVictimMutation, DeleteVictimMutationVariables>;
 export const LoginUserDocument = gql`
     mutation LoginUser($options: PhoneNumberPasswordInput!) {
   loginUser(options: $options) {
@@ -481,6 +532,38 @@ export function useRegisterAdminMutation(baseOptions?: Apollo.MutationHookOption
 export type RegisterAdminMutationHookResult = ReturnType<typeof useRegisterAdminMutation>;
 export type RegisterAdminMutationResult = Apollo.MutationResult<RegisterAdminMutation>;
 export type RegisterAdminMutationOptions = Apollo.BaseMutationOptions<RegisterAdminMutation, RegisterAdminMutationVariables>;
+export const UpdateVictimDocument = gql`
+    mutation updateVictim($victimId: String!, $options: CreateVictimInput!) {
+  updateVictim(victimId: $victimId, options: $options)
+}
+    `;
+export type UpdateVictimMutationFn = Apollo.MutationFunction<UpdateVictimMutation, UpdateVictimMutationVariables>;
+
+/**
+ * __useUpdateVictimMutation__
+ *
+ * To run a mutation, you first call `useUpdateVictimMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useUpdateVictimMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [updateVictimMutation, { data, loading, error }] = useUpdateVictimMutation({
+ *   variables: {
+ *      victimId: // value for 'victimId'
+ *      options: // value for 'options'
+ *   },
+ * });
+ */
+export function useUpdateVictimMutation(baseOptions?: Apollo.MutationHookOptions<UpdateVictimMutation, UpdateVictimMutationVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useMutation<UpdateVictimMutation, UpdateVictimMutationVariables>(UpdateVictimDocument, options);
+      }
+export type UpdateVictimMutationHookResult = ReturnType<typeof useUpdateVictimMutation>;
+export type UpdateVictimMutationResult = Apollo.MutationResult<UpdateVictimMutation>;
+export type UpdateVictimMutationOptions = Apollo.BaseMutationOptions<UpdateVictimMutation, UpdateVictimMutationVariables>;
 export const MeDocument = gql`
     query me {
   me {
@@ -530,8 +613,8 @@ export type MeQueryResult = Apollo.QueryResult<MeQuery, MeQueryVariables>;
 export const AllVictimsDocument = gql`
     query allVictims {
   victims {
-    id
     victims {
+      id
       name
       age
       address
