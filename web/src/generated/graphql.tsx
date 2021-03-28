@@ -95,7 +95,7 @@ export type Mutation = {
   logout: Scalars['Boolean'];
   registerAdmin: AdminResponse;
   loginAdmin: AdminResponse;
-  createVictim: Scalars['Boolean'];
+  createVictim: VictimData;
   updateVictim: Scalars['Boolean'];
   deleteVictim: Scalars['Boolean'];
 };
@@ -160,6 +160,16 @@ export type CreateVictimInput = {
   region: Scalars['String'];
 };
 
+export type RegularErrorFragment = (
+  { __typename?: 'FieldError' }
+  & Pick<FieldError, 'field' | 'message'>
+);
+
+export type VictimDataFragment = (
+  { __typename?: 'VictimData' }
+  & Pick<VictimData, 'id' | 'name' | 'age' | 'address' | 'photo' | 'gender' | 'location' | 'region' | 'creatorPhoneNumber'>
+);
+
 export type CreateVictimMutationVariables = Exact<{
   options: CreateVictimInput;
 }>;
@@ -167,7 +177,10 @@ export type CreateVictimMutationVariables = Exact<{
 
 export type CreateVictimMutation = (
   { __typename?: 'Mutation' }
-  & Pick<Mutation, 'createVictim'>
+  & { createVictim: (
+    { __typename?: 'VictimData' }
+    & VictimDataFragment
+  ) }
 );
 
 export type DeleteVictimMutationVariables = Exact<{
@@ -191,7 +204,7 @@ export type LoginUserMutation = (
     { __typename?: 'UserResponse' }
     & { errors?: Maybe<Array<(
       { __typename?: 'FieldError' }
-      & Pick<FieldError, 'field' | 'message'>
+      & RegularErrorFragment
     )>>, user?: Maybe<(
       { __typename?: 'User' }
       & Pick<User, 'username' | 'phoneNumber' | 'region'>
@@ -210,12 +223,20 @@ export type LoginAdminMutation = (
     { __typename?: 'AdminResponse' }
     & { errors?: Maybe<Array<(
       { __typename?: 'FieldError' }
-      & Pick<FieldError, 'field' | 'message'>
+      & RegularErrorFragment
     )>>, admin?: Maybe<(
       { __typename?: 'Admin' }
       & Pick<Admin, 'username' | 'phoneNumber'>
     )> }
   ) }
+);
+
+export type LogoutMutationVariables = Exact<{ [key: string]: never; }>;
+
+
+export type LogoutMutation = (
+  { __typename?: 'Mutation' }
+  & Pick<Mutation, 'logout'>
 );
 
 export type RegisterUserMutationVariables = Exact<{
@@ -231,7 +252,7 @@ export type RegisterUserMutation = (
     { __typename?: 'UserResponse' }
     & { errors?: Maybe<Array<(
       { __typename?: 'FieldError' }
-      & Pick<FieldError, 'field' | 'message'>
+      & RegularErrorFragment
     )>>, user?: Maybe<(
       { __typename?: 'User' }
       & Pick<User, 'username' | 'phoneNumber' | 'region'>
@@ -251,7 +272,7 @@ export type RegisterAdminMutation = (
     { __typename?: 'AdminResponse' }
     & { errors?: Maybe<Array<(
       { __typename?: 'FieldError' }
-      & Pick<FieldError, 'field' | 'message'>
+      & RegularErrorFragment
     )>>, admin?: Maybe<(
       { __typename?: 'Admin' }
       & Pick<Admin, 'username' | 'phoneNumber'>
@@ -299,17 +320,37 @@ export type AllVictimsQuery = (
     { __typename?: 'VictimList' }
     & { victims: Array<(
       { __typename?: 'VictimData' }
-      & Pick<VictimData, 'id' | 'name' | 'age' | 'address' | 'photo' | 'gender' | 'location' | 'region' | 'creatorPhoneNumber'>
+      & VictimDataFragment
     )> }
   ) }
 );
 
-
-export const CreateVictimDocument = gql`
-    mutation createVictim($options: CreateVictimInput!) {
-  createVictim(options: $options)
+export const RegularErrorFragmentDoc = gql`
+    fragment RegularError on FieldError {
+  field
+  message
 }
     `;
+export const VictimDataFragmentDoc = gql`
+    fragment VictimData on VictimData {
+  id
+  name
+  age
+  address
+  photo
+  gender
+  location
+  region
+  creatorPhoneNumber
+}
+    `;
+export const CreateVictimDocument = gql`
+    mutation createVictim($options: CreateVictimInput!) {
+  createVictim(options: $options) {
+    ...VictimData
+  }
+}
+    ${VictimDataFragmentDoc}`;
 export type CreateVictimMutationFn = Apollo.MutationFunction<CreateVictimMutation, CreateVictimMutationVariables>;
 
 /**
@@ -371,8 +412,7 @@ export const LoginUserDocument = gql`
     mutation LoginUser($options: PhoneNumberPasswordInput!) {
   loginUser(options: $options) {
     errors {
-      field
-      message
+      ...RegularError
     }
     user {
       username
@@ -381,7 +421,7 @@ export const LoginUserDocument = gql`
     }
   }
 }
-    `;
+    ${RegularErrorFragmentDoc}`;
 export type LoginUserMutationFn = Apollo.MutationFunction<LoginUserMutation, LoginUserMutationVariables>;
 
 /**
@@ -412,8 +452,7 @@ export const LoginAdminDocument = gql`
     mutation LoginAdmin($options: PhoneNumberPasswordInput!) {
   loginAdmin(options: $options) {
     errors {
-      field
-      message
+      ...RegularError
     }
     admin {
       username
@@ -421,7 +460,7 @@ export const LoginAdminDocument = gql`
     }
   }
 }
-    `;
+    ${RegularErrorFragmentDoc}`;
 export type LoginAdminMutationFn = Apollo.MutationFunction<LoginAdminMutation, LoginAdminMutationVariables>;
 
 /**
@@ -448,12 +487,41 @@ export function useLoginAdminMutation(baseOptions?: Apollo.MutationHookOptions<L
 export type LoginAdminMutationHookResult = ReturnType<typeof useLoginAdminMutation>;
 export type LoginAdminMutationResult = Apollo.MutationResult<LoginAdminMutation>;
 export type LoginAdminMutationOptions = Apollo.BaseMutationOptions<LoginAdminMutation, LoginAdminMutationVariables>;
+export const LogoutDocument = gql`
+    mutation logout {
+  logout
+}
+    `;
+export type LogoutMutationFn = Apollo.MutationFunction<LogoutMutation, LogoutMutationVariables>;
+
+/**
+ * __useLogoutMutation__
+ *
+ * To run a mutation, you first call `useLogoutMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useLogoutMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [logoutMutation, { data, loading, error }] = useLogoutMutation({
+ *   variables: {
+ *   },
+ * });
+ */
+export function useLogoutMutation(baseOptions?: Apollo.MutationHookOptions<LogoutMutation, LogoutMutationVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useMutation<LogoutMutation, LogoutMutationVariables>(LogoutDocument, options);
+      }
+export type LogoutMutationHookResult = ReturnType<typeof useLogoutMutation>;
+export type LogoutMutationResult = Apollo.MutationResult<LogoutMutation>;
+export type LogoutMutationOptions = Apollo.BaseMutationOptions<LogoutMutation, LogoutMutationVariables>;
 export const RegisterUserDocument = gql`
     mutation RegisterUser($username: String!, $region: String!, $options: PhoneNumberPasswordInput!) {
   registerUser(username: $username, region: $region, options: $options) {
     errors {
-      field
-      message
+      ...RegularError
     }
     user {
       username
@@ -462,7 +530,7 @@ export const RegisterUserDocument = gql`
     }
   }
 }
-    `;
+    ${RegularErrorFragmentDoc}`;
 export type RegisterUserMutationFn = Apollo.MutationFunction<RegisterUserMutation, RegisterUserMutationVariables>;
 
 /**
@@ -495,8 +563,7 @@ export const RegisterAdminDocument = gql`
     mutation RegisterAdmin($username: String!, $options: PhoneNumberPasswordInput!) {
   registerAdmin(username: $username, options: $options) {
     errors {
-      field
-      message
+      ...RegularError
     }
     admin {
       username
@@ -504,7 +571,7 @@ export const RegisterAdminDocument = gql`
     }
   }
 }
-    `;
+    ${RegularErrorFragmentDoc}`;
 export type RegisterAdminMutationFn = Apollo.MutationFunction<RegisterAdminMutation, RegisterAdminMutationVariables>;
 
 /**
@@ -614,19 +681,11 @@ export const AllVictimsDocument = gql`
     query allVictims {
   victims {
     victims {
-      id
-      name
-      age
-      address
-      photo
-      gender
-      location
-      region
-      creatorPhoneNumber
+      ...VictimData
     }
   }
 }
-    `;
+    ${VictimDataFragmentDoc}`;
 
 /**
  * __useAllVictimsQuery__

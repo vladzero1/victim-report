@@ -1,3 +1,5 @@
 mutation createVictim($options: CreateVictimInput!){
-  createVictim(options: $options)
+  createVictim(options: $options){
+    ...VictimData
+  }
 }

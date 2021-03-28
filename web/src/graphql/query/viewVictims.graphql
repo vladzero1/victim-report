@@ -1,15 +1,7 @@
 query allVictims {
   victims {
     victims {
-      id
-      name
-      age
-      address
-      photo
-      gender
-      location
-      region
-      creatorPhoneNumber
+      ...VictimData
     }
   }
 }

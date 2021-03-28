@@ -1,0 +1,11 @@
+fragment VictimData on VictimData {
+  id
+  name
+  age
+  address
+  photo
+  gender
+  location
+  region
+  creatorPhoneNumber
+}

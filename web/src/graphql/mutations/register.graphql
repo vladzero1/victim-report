@@ -5,8 +5,7 @@ mutation RegisterUser(
 ) {
   registerUser(username: $username, region: $region, options: $options) {
     errors {
-      field
-      message
+      ...RegularError
     }
     user {
       username
@@ -22,8 +21,7 @@ mutation RegisterAdmin(
 ) {
   registerAdmin(username: $username, options: $options) {
     errors {
-      field
-      message
+      ...RegularError
     }
     admin {
       username

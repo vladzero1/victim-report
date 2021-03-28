@@ -106,7 +106,7 @@ export class AdminResolver {
     const hash = await argon2.hash(options.password);
     try {
       await firestore
-        .collection(CollectionType.User)
+        .collection(CollectionType.Admin)
         .doc(options.phoneNumber)
         .create({
           username: username,

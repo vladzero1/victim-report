@@ -1,9 +1,10 @@
 import { User } from "../entity/User";
 import { MyContext } from "../types";
 import { CollectionType, UserType } from "../utils/enums";
-import { Query, Ctx, Resolver, ObjectType, Field } from "type-graphql";
+import { Query, Ctx, Resolver, ObjectType, Field, Mutation } from "type-graphql";
 import { FieldError } from "../utils/FieldError";
 import { Admin } from "../entity/Admin";
+import { COOKIE_NAME } from "../constant";
 
 @ObjectType()
 class MeResponse {
@@ -77,5 +78,19 @@ export class MeResolver {
       }
     }
     return undefined;
+  }
+
+  @Mutation(() => Boolean)
+  logout(@Ctx() { req, res }: MyContext) {
+    return new Promise((resolve) =>
+      req.session.destroy((err) => {
+        if (err) {
+          resolve(false);
+          return;
+        }
+        res.clearCookie(COOKIE_NAME);
+        resolve(true);
+      })
+    );
   }
 }

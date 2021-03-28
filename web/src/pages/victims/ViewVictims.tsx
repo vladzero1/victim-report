@@ -17,6 +17,7 @@ import { PageName } from "../../utils/Enums";
 import { IsAuth } from "../../utils/useIsAuth";
 import {
   AllVictimsDocument,
+  AllVictimsQuery,
   useAllVictimsQuery,
   useDeleteVictimMutation,
   useMeQuery,
@@ -171,7 +172,7 @@ export const ViewVictim: React.FC<{}> = ({}) => {
                         region: region,
                       },
                     },
-                    refetchQueries:[{query: AllVictimsDocument}]
+                    refetchQueries: [{ query: AllVictimsDocument }],
                   });
                   setShowModal(false);
                 }}
@@ -185,10 +186,26 @@ export const ViewVictim: React.FC<{}> = ({}) => {
                 <IonLabel>Are you sure to delete this victim?</IonLabel>
                 <IonButton
                   onClick={() => {
-                    console.log(chosenId);
                     deleteVictim({
                       variables: { victimId: chosenId },
-                      refetchQueries: [{ query: AllVictimsDocument }],
+                      update: (store) => {
+                        const victimData = store.readQuery<AllVictimsQuery>({
+                          query: AllVictimsDocument,
+                        });
+                        const newVictimData = victimData?.victims.victims.filter(
+                          (value) => value.id !== chosenId
+                        );
+                        store.writeQuery<AllVictimsQuery>({
+                          query: AllVictimsDocument,
+                          data: {
+                            __typename: victimData?.__typename,
+                            victims: {
+                              __typename: victimData?.victims.__typename,
+                              victims: newVictimData!,
+                            },
+                          },
+                        });
+                      },
                     });
                     setShowModal(false);
                   }}

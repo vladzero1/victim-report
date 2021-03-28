@@ -5,13 +5,21 @@ import {
   IonItem,
   IonLabel,
   IonList,
-  IonPage, IonSelect, IonSelectOption, useIonRouter
+  IonPage,
+  IonSelect,
+  IonSelectOption,
+  useIonRouter,
 } from "@ionic/react";
 import React, { useState } from "react";
 import { useHistory } from "react-router";
 import InputField from "../components/InputField";
 import { Layout } from "../components/Layout";
-import { PhoneNumberPasswordInput, useLoginAdminMutation, useLoginUserMutation } from "../generated/graphql";
+import {
+  MeDocument,
+  PhoneNumberPasswordInput,
+  useLoginAdminMutation,
+  useLoginUserMutation,
+} from "../generated/graphql";
 import { FieldName, PageName, UserType } from "../utils/Enums";
 
 interface LoginProps {}
@@ -80,6 +88,7 @@ export const Login: React.FC<LoginProps> = ({}) => {
               if (userTypeValue === UserType.User) {
                 let response = await loginUser({
                   variables: { options: options },
+                  refetchQueries: [{ query: MeDocument }],
                 });
                 if (response!.data?.loginUser.errors) {
                   response.data?.loginUser.errors.map((value) => {
@@ -87,7 +96,6 @@ export const Login: React.FC<LoginProps> = ({}) => {
                     setErrMsg(value.message);
                   });
                 } else {
-                  
                   if (router.routeInfo.pathname !== "/login") {
                     router.goBack();
                   }
@@ -97,6 +105,7 @@ export const Login: React.FC<LoginProps> = ({}) => {
               if (userTypeValue === UserType.Admin) {
                 let response = await loginAdmin({
                   variables: { options: options },
+                  refetchQueries: [{ query: MeDocument }],
                 });
                 if (response!.data?.loginAdmin.errors) {
                   response.data?.loginAdmin.errors.map((value) => {

@@ -12,9 +12,11 @@ import React, { useState } from "react";
 import InputField from "../../components/InputField";
 import { Layout } from "../../components/Layout";
 import {
+  AllVictimsDocument,
+  AllVictimsQuery,
   CreateVictimInput,
   useCreateVictimMutation,
-  useMeLazyQuery,
+  useMeQuery,
 } from "../../generated/graphql";
 import { genderList } from "../../utils/constant";
 import { PageName } from "../../utils/Enums";
@@ -23,7 +25,7 @@ interface CreateVictimsProps {}
 
 export const CreateVictim: React.FC<CreateVictimsProps> = ({}) => {
   const [createVictim] = useCreateVictimMutation();
-  const [me, { data, loading}] = useMeLazyQuery();
+  const { data, loading } = useMeQuery();
   const [name, setName] = useState("");
   const [age, setAge] = useState(0);
   const [address, setAddress] = useState("");
@@ -45,9 +47,14 @@ export const CreateVictim: React.FC<CreateVictimsProps> = ({}) => {
           />
           <InputField
             label="Age"
+            type="number"
             // errMsg={errField === FieldName.Password ? errMsg : null}
             onInput={(e) => {
-              setAge(e.currentTarget.value as number);
+              if (typeof e.currentTarget.value === "string")
+                setAge(parseInt(e.currentTarget.value));
+              else {
+                setAge(e.currentTarget.value as number);
+              }
             }}
           />
           <IonList>
@@ -94,7 +101,8 @@ export const CreateVictim: React.FC<CreateVictimsProps> = ({}) => {
             expand="block"
             routerLink="/victims/view"
             onClick={async ({}) => {
-              me();
+              console.log(data?.me?.user?.region);
+              console.log(data);
               const options: CreateVictimInput = {
                 name: name,
                 address: address,
@@ -104,8 +112,29 @@ export const CreateVictim: React.FC<CreateVictimsProps> = ({}) => {
                 photo: photo,
                 region: data?.me?.user?.region!,
               };
+              console.log(options);
               if (!loading)
-                await createVictim({ variables: { options: options } });
+                await createVictim({
+                  variables: { options: options },
+                  update: (store, { data }) => {
+                    const victimsData = store.readQuery<AllVictimsQuery>({
+                      query: AllVictimsDocument,
+                    });
+
+                    store.writeQuery<AllVictimsQuery>({
+                      query: AllVictimsDocument,
+                      data: {
+                        victims: {
+                          ...victimsData?.victims,
+                          victims: [
+                            ...victimsData!.victims.victims,
+                            data!.createVictim,
+                          ],
+                        },
+                      },
+                    });
+                  },
+                });
             }}
           >
             Create Victim

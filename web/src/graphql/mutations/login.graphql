@@ -1,8 +1,7 @@
 mutation LoginUser ($options: PhoneNumberPasswordInput!){
   loginUser(options: $options) {
     errors {
-      field
-      message
+      ...RegularError
     }
     user {
       username
@@ -15,8 +14,7 @@ mutation LoginUser ($options: PhoneNumberPasswordInput!){
 mutation LoginAdmin ($options: PhoneNumberPasswordInput!) {
   loginAdmin(options: $options) {
     errors {
-      field
-      message
+      ...RegularError
     }
     admin {
       username

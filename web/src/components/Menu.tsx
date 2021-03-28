@@ -1,3 +1,4 @@
+import { useApolloClient } from "@apollo/client";
 import {
   IonContent,
   IonHeader,
@@ -6,10 +7,11 @@ import {
   IonList,
   IonMenu,
   IonMenuToggle,
+  useIonRouter
 } from "@ionic/react";
 import React from "react";
 import { useLocation } from "react-router";
-import { useMeQuery } from "../generated/graphql";
+import { useLogoutMutation, useMeQuery } from "../generated/graphql";
 import { PageName } from "../utils/Enums";
 import "./Menu.css";
 
@@ -43,7 +45,10 @@ const appPages: AppPage[] = [
 
 const Menu: React.FC = () => {
   const location = useLocation();
+  const router = useIonRouter();
+  const apolloClient = useApolloClient();
   const { data, loading } = useMeQuery();
+  const [logout] = useLogoutMutation();
   let body = null;
   let header = null;
   //still loading
@@ -68,13 +73,24 @@ const Menu: React.FC = () => {
     //logged in
   } else {
     header = (
-      <IonHeader key="header">
-        Welcome,
-        <br />
-        {data?.me?.user !== null
-          ? data!.me?.user?.username
-          : data.me.admin?.username}
-      </IonHeader>
+      <>
+        <IonHeader key="header">
+          Welcome,
+          <br />
+          {data?.me?.user !== null
+            ? `${data!.me?.user?.username} (${data?.me?.user?.__typename})`
+            : `${data!.me?.admin?.username} (${data?.me?.admin?.__typename})`}
+        </IonHeader>
+        <IonItem
+          onClick={async () => {
+            apolloClient.resetStore();
+            await logout();
+            router.push(location.pathname);
+          }}
+        >
+          logout
+        </IonItem>
+      </>
     );
     body = appPages.map((appPage, index) => {
       if (appPage.url === "/login" || appPage.url === "/register") {

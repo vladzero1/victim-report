@@ -7,7 +7,7 @@ import Redis from "ioredis";
 import "reflect-metadata";
 import { buildSchema } from "type-graphql";
 import {
-  PHONE_NUMBER_COOKIE_NAME,
+  COOKIE_NAME,
   __prod__,
 } from "./constant";
 import { AdminResolver } from "./resolvers/admin";
@@ -24,7 +24,7 @@ const main = async () => {
   const redis = new Redis();
   app.use(
     session({
-      name: PHONE_NUMBER_COOKIE_NAME,
+      name: COOKIE_NAME,
       store: new RedisStore({
         client: redis,
         disableTouch: true,
